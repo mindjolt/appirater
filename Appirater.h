@@ -210,13 +210,20 @@ extern NSString *const kAppiraterReminderRequestDate;
  */
 + (void) setSignificantEventsUntilPrompt:(NSInteger)value;
 
-
 /*
  Once the rating alert is presented to the user, they might select
  'Remind me later'. This value specifies how long (in days) Appirater
  will wait before reminding them.
  */
 + (void) setTimeBeforeReminding:(double)value;
+
+/*
+ A different URL can be set from outside if user want to call something different
+ when clicks on rate button.
+ 
+ The string is going to replace the keyword APP_ID by the real app ID.
+ */
++ (void)setAppiraterUrl:(NSString*)url;
 
 /*
  'YES' will show the Appirater alert everytime. Useful for testing how your message

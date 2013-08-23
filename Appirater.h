@@ -226,6 +226,13 @@ extern NSString *const kAppiraterReminderRequestDate;
 + (void)setAppiraterUrl:(NSString*)url;
 
 /*
+ This boolean can jump the iOS6 feature to show the app store directly
+ and open a URL by the navigator instead. This can be usefull if app needs to go to reviews
+ tab directly instead of going to the app main page in the app store.
+ */
++ (void) setUseURLMethod:(BOOL)value;
+
+/*
  'YES' will show the Appirater alert everytime. Useful for testing how your message
  looks and making sure the link to your app's review page works.
  */

@@ -58,6 +58,7 @@ static NSInteger _usesUntilPrompt = 20;
 static NSInteger _significantEventsUntilPrompt = -1;
 static double _timeBeforeReminding = 1;
 static BOOL _debug = NO;
+static BOOL _useURLMethod = NO;
 #if __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_5_0
 	static id<AppiraterDelegate> _delegate;
 #else
@@ -122,6 +123,10 @@ static BOOL _modalOpen = false;
 + (void)setAppiraterUrl:(NSString*)url {
     templateReviewURL = url;
 }
++ (void) setUseURLMethod:(BOOL)value {
+    _useURLMethod = value;
+}
+
 
 - (BOOL)connectedToNetwork {
     // Create zero addy
@@ -448,7 +453,7 @@ static BOOL _modalOpen = false;
 	[userDefaults synchronize];
 
 	//Use the in-app StoreKit view if available (iOS 6) and imported. This works in the simulator.
-	if (!_openInAppStore && NSStringFromClass([SKStoreProductViewController class]) != nil) {
+	if (!_useURLMethod && !_openInAppStore && NSStringFromClass([SKStoreProductViewController class]) != nil) {
 		
 		SKStoreProductViewController *storeViewController = [[SKStoreProductViewController alloc] init];
 		NSNumber *appId = [NSNumber numberWithInteger:_appId.integerValue];

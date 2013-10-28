@@ -51,6 +51,7 @@ NSString *const kAppiraterDeclinedToRate			= @"kAppiraterDeclinedToRate";
 NSString *const kAppiraterReminderRequestDate		= @"kAppiraterReminderRequestDate";
 
 static NSString *templateReviewURL = @"itms-apps://ax.itunes.apple.com/WebObjects/MZStore.woa/wa/viewContentsUserReviews?type=Purple+Software&id=APP_ID";
+static NSString *templateReviewURLiOS7 = @"itms-apps://itunes.apple.com/app/idAPP_ID";
 
 static NSString *_appId;
 static double _daysUntilPrompt = 30;
@@ -452,8 +453,10 @@ static BOOL _modalOpen = false;
 	[userDefaults setBool:YES forKey:kAppiraterRatedCurrentVersion];
 	[userDefaults synchronize];
 
+	BOOL isIOS7 = [[UIDevice currentDevice].systemVersion floatValue] >= 7.0;
+
 	//Use the in-app StoreKit view if available (iOS 6) and imported. This works in the simulator.
-	if (!_useURLMethod && !_openInAppStore && NSStringFromClass([SKStoreProductViewController class]) != nil) {
+	if (!isIOS7 && !_useURLMethod && !_openInAppStore && NSStringFromClass([SKStoreProductViewController class]) != nil) {
 		
 		SKStoreProductViewController *storeViewController = [[SKStoreProductViewController alloc] init];
 		NSNumber *appId = [NSNumber numberWithInteger:_appId.integerValue];
@@ -478,6 +481,11 @@ static BOOL _modalOpen = false;
 		NSLog(@"APPIRATER NOTE: iTunes App Store is not supported on the iOS simulator. Unable to open App Store page.");
 		#else
 		NSString *reviewURL = [templateReviewURL stringByReplacingOccurrencesOfString:@"APP_ID" withString:[NSString stringWithFormat:@"%@", _appId]];
+
+		// iOS 7 needs a different templateReviewURL @see https://github.com/arashpayan/appirater/issues/131
+		if (isIOS7) {
+            reviewURL = [templateReviewURLiOS7 stringByReplacingOccurrencesOfString:@"APP_ID" withString:[NSString stringWithFormat:@"%@", _appId]];
+		}
 		[[UIApplication sharedApplication] openURL:[NSURL URLWithString:reviewURL]];
 		#endif
 	}

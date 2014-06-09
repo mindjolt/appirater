@@ -402,6 +402,12 @@ static BOOL _modalOpen = false;
                    });
 }
 
++ (void)resetSignificantEvents {
+  NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+  [userDefaults setInteger:0 forKey:kAppiraterSignificantEventCount];
+  [userDefaults synchronize];
+}
+
 + (void)showPrompt {
     if ([[Appirater sharedInstance] connectedToNetwork]
         && ![[Appirater sharedInstance] userHasDeclinedToRate]

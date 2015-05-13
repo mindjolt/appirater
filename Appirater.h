@@ -143,6 +143,8 @@ extern NSString *const kAppiraterReminderRequestDate;
 + (void)userDidSignificantEvent:(BOOL)canPromptForRating;
 
 
++ (void)evaluateConditions;
+
 /*
  Reset counter for significant events
  */

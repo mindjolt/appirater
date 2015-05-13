@@ -202,32 +202,32 @@ static BOOL _modalOpen = false;
 	NSTimeInterval timeUntilRate = 60 * 60 * 24 * _daysUntilPrompt;
 	if (timeSinceFirstLaunch < timeUntilRate)
 		return NO;
-	
+
 	// check if the app has been used enough
 	NSInteger useCount = [userDefaults integerForKey:kAppiraterUseCount];
 	if (useCount <= _usesUntilPrompt)
 		return NO;
-	
+
 	// check if the user has done enough significant events
 	NSInteger sigEventCount = [userDefaults integerForKey:kAppiraterSignificantEventCount];
 	if (sigEventCount <= _significantEventsUntilPrompt)
 		return NO;
-	
+
 	// has the user previously declined to rate this version of the app?
 	if ([userDefaults boolForKey:kAppiraterDeclinedToRate])
 		return NO;
-	
+
 	// has the user already rated the app?
 	if ([self userHasRatedCurrentVersion])
 		return NO;
-	
+
 	// if the user wanted to be reminded later, has enough time passed?
 	NSDate *reminderRequestDate = [NSDate dateWithTimeIntervalSince1970:[userDefaults doubleForKey:kAppiraterReminderRequestDate]];
 	NSTimeInterval timeSinceReminderRequest = [[NSDate date] timeIntervalSinceDate:reminderRequestDate];
 	NSTimeInterval timeUntilReminder = 60 * 60 * 24 * _timeBeforeReminding;
 	if (timeSinceReminderRequest < timeUntilReminder)
 		return NO;
-	
+
 	return YES;
 }
 
@@ -327,32 +327,31 @@ static BOOL _modalOpen = false;
 	[userDefaults synchronize];
 }
 
++ (void)evaluateConditions {
+  if ([[Appirater sharedInstance] ratingConditionsHaveBeenMet] &&
+      [[Appirater sharedInstance] connectedToNetwork])
+  {
+    dispatch_async(dispatch_get_main_queue(),
+                   ^{
+                     [[Appirater sharedInstance] showRatingAlert];
+                   });
+  }
+}
+
 - (void)incrementAndRate:(BOOL)canPromptForRating {
 	[self incrementUseCount];
-	
-	if (canPromptForRating &&
-		[self ratingConditionsHaveBeenMet] &&
-		[self connectedToNetwork])
-	{
-        dispatch_async(dispatch_get_main_queue(),
-                       ^{
-                           [self showRatingAlert];
-                       });
-	}
+
+  if (canPromptForRating) {
+    [Appirater evaluateConditions];
+  }
 }
 
 - (void)incrementSignificantEventAndRate:(BOOL)canPromptForRating {
 	[self incrementSignificantEventCount];
-	
-	if (canPromptForRating &&
-		[self ratingConditionsHaveBeenMet] &&
-		[self connectedToNetwork])
-	{
-        dispatch_async(dispatch_get_main_queue(),
-                       ^{
-                           [self showRatingAlert];
-                       });
-	}
+
+  if (canPromptForRating) {
+    [Appirater evaluateConditions];
+  }
 }
 
 - (BOOL)userHasDeclinedToRate {

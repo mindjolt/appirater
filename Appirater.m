@@ -459,6 +459,7 @@ static BOOL _modalOpen = false;
 	[userDefaults synchronize];
 
 	BOOL isIOS7 = [[UIDevice currentDevice].systemVersion floatValue] >= 7.0;
+	BOOL isIOS103 = [[UIDevice currentDevice].systemVersion floatValue] >= 10.3;
 
 	//Use the in-app StoreKit view if available (iOS 6) and imported. This works in the simulator.
 	if (!isIOS7 && !_useURLMethod && !_openInAppStore && NSStringFromClass([SKStoreProductViewController class]) != nil) {
@@ -480,7 +481,11 @@ static BOOL _modalOpen = false;
 		}];
 	
 	//Use the standard openUrl method if StoreKit is unavailable.
-	} else {
+	}
+	else if (isIOS103) {
+		[SKStoreReviewController requestReview];
+	}
+	else {
 		
 		#if TARGET_IPHONE_SIMULATOR
 		NSLog(@"APPIRATER NOTE: iTunes App Store is not supported on the iOS simulator. Unable to open App Store page.");

@@ -261,6 +261,8 @@ extern NSString *const kAppiraterReminderRequestDate;
  */
 + (void)setOpenInAppStore:(BOOL)openInAppStore;
 
++ (void)setUndefinedEvaluationProperty;
+
 @end
 
 

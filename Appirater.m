@@ -54,6 +54,7 @@ static NSString *templateReviewURL = @"itms-apps://ax.itunes.apple.com/WebObject
 static NSString *templateReviewURLiOS7 = @"itms-apps://itunes.apple.com/app/idAPP_ID";
 
 static NSString *_appId;
+static BOOL _undefinedEvaluationProperties = NO;
 static double _daysUntilPrompt = 30;
 static NSInteger _usesUntilPrompt = 20;
 static NSInteger _significantEventsUntilPrompt = -1;
@@ -128,7 +129,6 @@ static BOOL _modalOpen = false;
     _useURLMethod = value;
 }
 
-
 - (BOOL)connectedToNetwork {
     // Create zero addy
     struct sockaddr_in zeroAddress;
@@ -192,9 +192,11 @@ static BOOL _modalOpen = false;
 }
 
 - (BOOL)ratingConditionsHaveBeenMet {
-	if (_debug)
+  if (_undefinedEvaluationProperties)
+		return NO;
+  if (_debug)
 		return YES;
-	
+
 	NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
 	
 	NSDate *dateOfFirstLaunch = [NSDate dateWithTimeIntervalSince1970:[userDefaults doubleForKey:kAppiraterFirstUseDate]];
@@ -562,6 +564,10 @@ static BOOL _modalOpen = false;
 		}];
 		[self.class setStatusBarStyle:(UIStatusBarStyle)nil];
 	}
+}
+
++ (void)setUndefinedEvaluationProperty {
+  _undefinedEvaluationProperties = YES;
 }
 
 @end

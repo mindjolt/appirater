@@ -53,6 +53,8 @@ NSString *const kAppiraterReminderRequestDate		= @"kAppiraterReminderRequestDate
 static NSString *templateReviewURL = @"itms-apps://ax.itunes.apple.com/WebObjects/MZStore.woa/wa/viewContentsUserReviews?type=Purple+Software&id=APP_ID";
 static NSString *templateReviewURLiOS7 = @"itms-apps://itunes.apple.com/app/idAPP_ID";
 
+static NSString *customRateText;
+
 static NSString *_appId;
 static BOOL _undefinedEvaluationProperties = NO;
 static double _daysUntilPrompt = 30;
@@ -177,8 +179,10 @@ static BOOL _modalOpen = false;
 }
 
 - (void)showRatingAlert {
+    NSString *msg = (![customRateText isEqual:nil] && ![customRateText isEqual:@""]) ? customRateText : APPIRATER_MESSAGE;
+    
 	UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:APPIRATER_MESSAGE_TITLE
-														 message:APPIRATER_MESSAGE
+														 message:msg
 														delegate:self
 											   cancelButtonTitle:APPIRATER_CANCEL_BUTTON
 											   otherButtonTitles:APPIRATER_RATE_BUTTON, APPIRATER_RATE_LATER, nil];
@@ -564,6 +568,14 @@ static BOOL _modalOpen = false;
 		}];
 		[self.class setStatusBarStyle:(UIStatusBarStyle)nil];
 	}
+}
+
++ (NSString*)getCustomRateText {
+    return customRateText;
+}
+
++ (void)setCustomRateText:(NSString *)text {
+    customRateText = text;
 }
 
 + (void)setUndefinedEvaluationProperty {

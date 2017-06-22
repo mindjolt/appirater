@@ -458,6 +458,24 @@ static BOOL _modalOpen = false;
 	return controller;
 }
 
++ (void)rateUsingSKStoreProductViewController {
+  SKStoreProductViewController *storeViewController = [[SKStoreProductViewController alloc] init];
+  NSNumber *appId = [NSNumber numberWithInteger:_appId.integerValue];
+  [storeViewController loadProductWithParameters:@{SKStoreProductParameterITunesItemIdentifier:appId} completionBlock:nil];
+  storeViewController.delegate = self.sharedInstance;
+  
+  id <AppiraterDelegate> delegate = self.sharedInstance.delegate;
+  if ([delegate respondsToSelector:@selector(appiraterWillPresentModalView:animated:)]) {
+    [delegate appiraterWillPresentModalView:self.sharedInstance animated:_usesAnimation];
+  }
+  [[self getRootViewController] presentViewController:storeViewController animated:_usesAnimation completion:^{
+    [self setModalOpen:YES];
+    //Temporarily use a black status bar to match the StoreKit view.
+    [self setStatusBarStyle:[UIApplication sharedApplication].statusBarStyle];
+    [[UIApplication sharedApplication]setStatusBarStyle:UIStatusBarStyleLightContent animated:_usesAnimation];
+  }];
+}
+
 + (void)rateApp {
 	
 	NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
@@ -467,42 +485,20 @@ static BOOL _modalOpen = false;
 	BOOL isIOS7 = [[UIDevice currentDevice].systemVersion floatValue] >= 7.0;
 	BOOL isIOS103 = [[UIDevice currentDevice].systemVersion floatValue] >= 10.3;
 
-	//Use the in-app StoreKit view if available (iOS 6) and imported. This works in the simulator.
-	if (!isIOS7 && !_useURLMethod && !_openInAppStore && NSStringFromClass([SKStoreProductViewController class]) != nil) {
-		
-		SKStoreProductViewController *storeViewController = [[SKStoreProductViewController alloc] init];
-		NSNumber *appId = [NSNumber numberWithInteger:_appId.integerValue];
-		[storeViewController loadProductWithParameters:@{SKStoreProductParameterITunesItemIdentifier:appId} completionBlock:nil];
-		storeViewController.delegate = self.sharedInstance;
-        
-        id <AppiraterDelegate> delegate = self.sharedInstance.delegate;
-		if ([delegate respondsToSelector:@selector(appiraterWillPresentModalView:animated:)]) {
-			[delegate appiraterWillPresentModalView:self.sharedInstance animated:_usesAnimation];
-		}
-		[[self getRootViewController] presentViewController:storeViewController animated:_usesAnimation completion:^{
-			[self setModalOpen:YES];
-			//Temporarily use a black status bar to match the StoreKit view.
-			[self setStatusBarStyle:[UIApplication sharedApplication].statusBarStyle];
-			[[UIApplication sharedApplication]setStatusBarStyle:UIStatusBarStyleLightContent animated:_usesAnimation];
-		}];
-	
-	//Use the standard openUrl method if StoreKit is unavailable.
-	}
-	else if (isIOS103) {
-		[SKStoreReviewController requestReview];
-	}
+  if (isIOS7 && !_useURLMethod && !_openInAppStore && NSStringFromClass([SKStoreProductViewController class]) != nil)
+    [Appirater rateUsingSKStoreProductViewController];
+	else if (isIOS103)
+    [SKStoreReviewController requestReview];
 	else {
-		
 		#if TARGET_IPHONE_SIMULATOR
 		NSLog(@"APPIRATER NOTE: iTunes App Store is not supported on the iOS simulator. Unable to open App Store page.");
 		#else
-		NSString *reviewURL = [templateReviewURL stringByReplacingOccurrencesOfString:@"APP_ID" withString:[NSString stringWithFormat:@"%@", _appId]];
-
-		// iOS 7 needs a different templateReviewURL @see https://github.com/arashpayan/appirater/issues/131
-		if (isIOS7) {
-            reviewURL = [templateReviewURLiOS7 stringByReplacingOccurrencesOfString:@"APP_ID" withString:[NSString stringWithFormat:@"%@", _appId]];
-		}
-		[[UIApplication sharedApplication] openURL:[NSURL URLWithString:reviewURL]];
+      NSString *reviewURL = [templateReviewURL stringByReplacingOccurrencesOfString:@"APP_ID" withString:[NSString stringWithFormat:@"%@", _appId]];
+      // iOS 7 needs a different templateReviewURL @see https://github.com/arashpayan/appirater/issues/131
+      if (isIOS7) {
+        reviewURL = [templateReviewURLiOS7 stringByReplacingOccurrencesOfString:@"APP_ID" withString:[NSString stringWithFormat:@"%@", _appId]];
+      }
+      [[UIApplication sharedApplication] openURL:[NSURL URLWithString:reviewURL]];
 		#endif
 	}
 }
